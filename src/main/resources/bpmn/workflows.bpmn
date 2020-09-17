@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:zeebe="http://camunda.org/schema/zeebe/1.0" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_0zz7v7f" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Zeebe Modeler" exporterVersion="0.10.0">
+  <bpmn:process id="test-process" name="Test Process" isExecutable="true">
+    <bpmn:endEvent id="Event_0lmeg8j">
+      <bpmn:incoming>Flow_1o5r0wo</bpmn:incoming>
+      <bpmn:incoming>Flow_0tfe3il</bpmn:incoming>
+      <bpmn:incoming>Flow_1h7mftp</bpmn:incoming>
+      <bpmn:incoming>Flow_0140ard</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_1mrjs9c" sourceRef="OrderStartedIntegrationEvent" targetRef="OrderStatusChangedToAwaitingValidationIntegrationEvent" />
+    <bpmn:startEvent id="OrderStartedIntegrationEvent" name="Order Started">
+      <bpmn:outgoing>Flow_1mrjs9c</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MessageEventDefinition_0lj89dp" messageRef="Message_0yi9pgr" />
+    </bpmn:startEvent>
+    <bpmn:sequenceFlow id="Flow_1fj2b1z" sourceRef="OrderStatusChangedToAwaitingValidationIntegrationEvent" targetRef="OrderStockConfirmedIntegrationEvent" />
+    <bpmn:receiveTask id="OrderStatusChangedToAwaitingValidationIntegrationEvent" name="Order Status Changed to Awaiting Validation" messageRef="Message_0mnfdxi">
+      <bpmn:incoming>Flow_1mrjs9c</bpmn:incoming>
+      <bpmn:outgoing>Flow_1fj2b1z</bpmn:outgoing>
+    </bpmn:receiveTask>
+    <bpmn:sequenceFlow id="Flow_0q4wfj4" sourceRef="OrderStockConfirmedIntegrationEvent" targetRef="OrderStatusChangedToStockConfirmedIntegrationEvent" />
+    <bpmn:receiveTask id="OrderStockConfirmedIntegrationEvent" name="Stock Confirmed" messageRef="Message_1k35sn0">
+      <bpmn:incoming>Flow_1fj2b1z</bpmn:incoming>
+      <bpmn:outgoing>Flow_0q4wfj4</bpmn:outgoing>
+    </bpmn:receiveTask>
+    <bpmn:sequenceFlow id="Flow_1yegedt" sourceRef="OrderStatusChangedToStockConfirmedIntegrationEvent" targetRef="OrderPaymentSucceededIntegrationEvent" />
+    <bpmn:receiveTask id="OrderStatusChangedToStockConfirmedIntegrationEvent" name="Order Status Changed to Stock Confirmed" messageRef="Message_1c8x843">
+      <bpmn:incoming>Flow_0q4wfj4</bpmn:incoming>
+      <bpmn:outgoing>Flow_1yegedt</bpmn:outgoing>
+    </bpmn:receiveTask>
+    <bpmn:sequenceFlow id="Flow_1h83tvg" sourceRef="OrderPaymentSucceededIntegrationEvent" targetRef="OrderStatusChangedToPaidIntegrationEvent" />
+    <bpmn:receiveTask id="OrderPaymentSucceededIntegrationEvent" name="Payment Succeeded" messageRef="Message_1ar0hvo">
+      <bpmn:incoming>Flow_1yegedt</bpmn:incoming>
+      <bpmn:outgoing>Flow_1h83tvg</bpmn:outgoing>
+    </bpmn:receiveTask>
+    <bpmn:sequenceFlow id="Flow_1o5r0wo" sourceRef="OrderStatusChangedToPaidIntegrationEvent" targetRef="Event_0lmeg8j" />
+    <bpmn:receiveTask id="OrderStatusChangedToPaidIntegrationEvent" name="Order Status Changed to Paid" messageRef="Message_00ys62t">
+      <bpmn:incoming>Flow_1h83tvg</bpmn:incoming>
+      <bpmn:outgoing>Flow_1o5r0wo</bpmn:outgoing>
+    </bpmn:receiveTask>
+    <bpmn:boundaryEvent id="OrderStatusChangedToCancelledIntegrationEvent" name="Order Cancelled" attachedToRef="OrderStatusChangedToAwaitingValidationIntegrationEvent">
+      <bpmn:outgoing>Flow_0140ard</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MessageEventDefinition_0llfrks" messageRef="Message_0oysgt9" />
+    </bpmn:boundaryEvent>
+    <bpmn:boundaryEvent id="OrderStockRejectedIntegrationEvent" name="Stock Rejected" attachedToRef="OrderStockConfirmedIntegrationEvent">
+      <bpmn:outgoing>Flow_1h7mftp</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MessageEventDefinition_06sjb82" messageRef="Message_0xq5wir" />
+    </bpmn:boundaryEvent>
+    <bpmn:boundaryEvent id="OrderPaymentFailedIntegrationEvent" name="Payment Failed" attachedToRef="OrderPaymentSucceededIntegrationEvent">
+      <bpmn:outgoing>Flow_0tfe3il</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MessageEventDefinition_10h44tm" messageRef="Message_084ekd7" />
+    </bpmn:boundaryEvent>
+    <bpmn:sequenceFlow id="Flow_0tfe3il" sourceRef="OrderPaymentFailedIntegrationEvent" targetRef="Event_0lmeg8j" />
+    <bpmn:sequenceFlow id="Flow_1h7mftp" sourceRef="OrderStockRejectedIntegrationEvent" targetRef="Event_0lmeg8j" />
+    <bpmn:sequenceFlow id="Flow_0140ard" sourceRef="OrderStatusChangedToCancelledIntegrationEvent" targetRef="Event_0lmeg8j" />
+    <bpmn:startEvent id="NOT_CORRELATED_MSGS" name="Not Correlated Messages">
+      <bpmn:outgoing>Flow_0i9l094</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MessageEventDefinition_04vno61" messageRef="Message_09oi7qp" />
+    </bpmn:startEvent>
+    <bpmn:endEvent id="Event_1thmcz2">
+      <bpmn:incoming>Flow_0i9l094</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_0i9l094" sourceRef="NOT_CORRELATED_MSGS" targetRef="Event_1thmcz2" />
+  </bpmn:process>
+  <bpmn:message id="Message_04m711c" name="OrderStartedIntegrationEvent">
+    <bpmn:extensionElements>
+      <zeebe:subscription correlationKey="=&#34;333&#34;" />
+    </bpmn:extensionElements>
+  </bpmn:message>
+  <bpmn:message id="Message_0wxcu8n" name="XXX">
+    <bpmn:extensionElements>
+      <zeebe:subscription correlationKey="=orderId" />
+    </bpmn:extensionElements>
+  </bpmn:message>
+  <bpmn:message id="Message_0yi9pgr" name="OrderStartedIntegrationEvent" />
+  <bpmn:message id="Message_0mnfdxi" name="OrderStatusChangedToAwaitingValidationIntegrationEvent">
+    <bpmn:extensionElements>
+      <zeebe:subscription correlationKey="=orderId" />
+    </bpmn:extensionElements>
+  </bpmn:message>
+  <bpmn:message id="Message_1k35sn0" name="OrderStockConfirmedIntegrationEvent">
+    <bpmn:extensionElements>
+      <zeebe:subscription correlationKey="=orderId" />
+    </bpmn:extensionElements>
+  </bpmn:message>
+  <bpmn:message id="Message_1c8x843" name="OrderStatusChangedToStockConfirmedIntegrationEvent">
+    <bpmn:extensionElements>
+      <zeebe:subscription correlationKey="=orderId" />
+    </bpmn:extensionElements>
+  </bpmn:message>
+  <bpmn:message id="Message_1ar0hvo" name="OrderPaymentSucceededIntegrationEvent">
+    <bpmn:extensionElements>
+      <zeebe:subscription correlationKey="=orderId" />
+    </bpmn:extensionElements>
+  </bpmn:message>
+  <bpmn:message id="Message_00ys62t" name="OrderStatusChangedToPaidIntegrationEvent">
+    <bpmn:extensionElements>
+      <zeebe:subscription correlationKey="=orderId" />
+    </bpmn:extensionElements>
+  </bpmn:message>
+  <bpmn:message id="Message_0oysgt9" name="OrderStatusChangedToCancelledIntegrationEvent">
+    <bpmn:extensionElements>
+      <zeebe:subscription correlationKey="=orderId" />
+    </bpmn:extensionElements>
+  </bpmn:message>
+  <bpmn:message id="Message_0xq5wir" name="OrderStockRejectedIntegrationEvent">
+    <bpmn:extensionElements>
+      <zeebe:subscription correlationKey="=orderId" />
+    </bpmn:extensionElements>
+  </bpmn:message>
+  <bpmn:message id="Message_084ekd7" name="OrderPaymentFailedIntegrationEvent">
+    <bpmn:extensionElements>
+      <zeebe:subscription correlationKey="=orderId" />
+    </bpmn:extensionElements>
+  </bpmn:message>
+  <bpmn:message id="Message_09oi7qp" name="NOT_CORRELATED_MSGS" />
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="test-process">
+      <bpmndi:BPMNEdge id="Flow_0i9l094_di" bpmnElement="Flow_0i9l094">
+        <di:waypoint x="188" y="410" />
+        <di:waypoint x="282" y="410" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0140ard_di" bpmnElement="Flow_0140ard">
+        <di:waypoint x="340" y="178" />
+        <di:waypoint x="340" y="220" />
+        <di:waypoint x="1150" y="220" />
+        <di:waypoint x="1150" y="138" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1h7mftp_di" bpmnElement="Flow_1h7mftp">
+        <di:waypoint x="520" y="178" />
+        <di:waypoint x="520" y="210" />
+        <di:waypoint x="1150" y="210" />
+        <di:waypoint x="1150" y="138" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0tfe3il_di" bpmnElement="Flow_0tfe3il">
+        <di:waypoint x="860" y="178" />
+        <di:waypoint x="860" y="198" />
+        <di:waypoint x="1150" y="198" />
+        <di:waypoint x="1150" y="138" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1o5r0wo_di" bpmnElement="Flow_1o5r0wo">
+        <di:waypoint x="1070" y="120" />
+        <di:waypoint x="1132" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1h83tvg_di" bpmnElement="Flow_1h83tvg">
+        <di:waypoint x="910" y="120" />
+        <di:waypoint x="970" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1yegedt_di" bpmnElement="Flow_1yegedt">
+        <di:waypoint x="750" y="120" />
+        <di:waypoint x="810" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0q4wfj4_di" bpmnElement="Flow_0q4wfj4">
+        <di:waypoint x="570" y="120" />
+        <di:waypoint x="650" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1fj2b1z_di" bpmnElement="Flow_1fj2b1z">
+        <di:waypoint x="390" y="120" />
+        <di:waypoint x="470" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1mrjs9c_di" bpmnElement="Flow_1mrjs9c">
+        <di:waypoint x="188" y="120" />
+        <di:waypoint x="290" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Event_0lmeg8j_di" bpmnElement="Event_0lmeg8j">
+        <dc:Bounds x="1132" y="102" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_08jdj7d_di" bpmnElement="OrderStartedIntegrationEvent">
+        <dc:Bounds x="152" y="102" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="138" y="145" width="67" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_00z7ld0_di" bpmnElement="OrderStatusChangedToAwaitingValidationIntegrationEvent">
+        <dc:Bounds x="290" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0o22lkm_di" bpmnElement="OrderStockConfirmedIntegrationEvent">
+        <dc:Bounds x="470" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1dq6bxi_di" bpmnElement="OrderStatusChangedToStockConfirmedIntegrationEvent">
+        <dc:Bounds x="650" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1f5h89c_di" bpmnElement="OrderPaymentSucceededIntegrationEvent">
+        <dc:Bounds x="810" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1ejxykt_di" bpmnElement="OrderStatusChangedToPaidIntegrationEvent">
+        <dc:Bounds x="970" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_19pax2d_di" bpmnElement="NOT_CORRELATED_MSGS">
+        <dc:Bounds x="152" y="392" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="134" y="435" width="72" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1thmcz2_di" bpmnElement="Event_1thmcz2">
+        <dc:Bounds x="282" y="392" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0d8s7bj_di" bpmnElement="OrderPaymentFailedIntegrationEvent">
+        <dc:Bounds x="842" y="142" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="822" y="185" width="77" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1ix9w9b_di" bpmnElement="OrderStockRejectedIntegrationEvent">
+        <dc:Bounds x="502" y="142" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="483" y="185" width="75" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0nfry7m_di" bpmnElement="OrderStatusChangedToCancelledIntegrationEvent">
+        <dc:Bounds x="322" y="142" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="300" y="185" width="81" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
