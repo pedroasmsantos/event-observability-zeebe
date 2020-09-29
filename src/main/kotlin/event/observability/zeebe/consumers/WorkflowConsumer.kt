@@ -22,26 +22,14 @@ class WorkflowConsumer(val client: ZeebeClientLifecycle){
 
         val jsonString: String = ObjectMapper().writeValueAsString(event)
 
-        try {
-            client
-                .newPublishMessageCommand()
-                .messageName(routingKey)
-                .correlationKey(event.OrderId)
-                .variables(jsonString)
-                .send()
-                .join()
+        client
+            .newPublishMessageCommand()
+            .messageName(routingKey)
+            .correlationKey(event.OrderId)
+            .variables(jsonString)
+            .send()
+            .join()
 
-            logger.info("Event $event successfully correlated to process instance ${event.OrderId}.")
-        } catch (e: Exception) {
-            logger.warn("Event $event couldn't be related with any workflow. Will be correlated to the error process.")
-
-            client
-                .newPublishMessageCommand()
-                .messageName("NOT_CORRELATED_MSGS")
-                .correlationKey(event.OrderId)
-                .variables(jsonString)
-                .send()
-                .join()
-        }
+        logger.info("Event $event correlated to process instance ${event.OrderId}.")
     }
 }
