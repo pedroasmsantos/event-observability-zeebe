@@ -1,9 +1,39 @@
 version: '3.4'
 services:
-  rabbitmq:
-    image: rabbitmq:3-management-alpine
+  #rabbitmq:
+  #  image: rabbitmq:3-management-alpine
+  #  ports:
+  #    - "15672:15672"
+  #    - "5672:5672"
+  zeebe:
+    image: camunda/zeebe:0.24.1
+    hostname: zeebe
+    environment:
+      - ZEEBE_LOG_LEVEL=debug
+      - ZEEBE_INSECURE_CONNECTION=true
     ports:
-      - "15672:15672"
-      - "5672:5672"
+      - "26500:26500"
+      - "9600:9600"
+    volumes:
+      - ./config/zeebe.config.yml:/usr/local/zeebe/config/application.yaml
+    depends_on:
+      - elasticsearch
+  operate:
+    image: camunda/operate:0.24.2
+    ports:
+      - "8088:8080"
+    depends_on:
+      - zeebe
+      - elasticsearch
+    volumes:
+      - ./config/operate.config.yml:/usr/local/operate/config/application.yml
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch-oss:6.7.1
+    ports:
+      - "9200:9200"
+    environment:
+      - discovery.type=single-node
+      - cluster.name=elasticsearch
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
 volumes:
   db-data:
