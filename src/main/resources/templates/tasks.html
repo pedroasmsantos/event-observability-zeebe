@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org" xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
+<head>
+    <title>Spring Security Example</title>
+</head>
+<body>
+<div class="mb-2">
+    <span th:text="${count}" />
+</div>
+
+<div class="mb-2">
+    <div class="list-group">
+        <tbody>
+        <tr th:each="task: ${tasks}">
+            <td th:text="${task.key}" />
+            <td th:text="${task.name}" />
+            <td th:text="${task.description}" />
+            <td th:text="${task.variables}" />
+            <form action="#" data-th-action="@{/userTasks/acknowledge}" method="post">
+                <button type="submit" th:name="jobKey" th:value="${task.key}">acknowledge</button>
+            </form>
+            <br>
+        </tr>
+        </tbody>
+    </div>
+</div>
+</body>
+</html>

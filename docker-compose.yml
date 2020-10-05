@@ -1,10 +1,22 @@
 version: '3.4'
 services:
-  #rabbitmq:
-  #  image: rabbitmq:3-management-alpine
-  #  ports:
-  #    - "15672:15672"
-  #    - "5672:5672"
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    ports:
+      - "15672:15672"
+      - "5672:5672"
+  postgres:
+    image: postgres
+    volumes:
+      - db-data:/var/lib/postgres/data
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: zeebe
+      POSTGRES_USERNAME: postgres
+      POSTGRES_PASSWORD: postgres
+      TZ: 'WET'
+      PGTZ: 'WET'
   zeebe:
     image: camunda/zeebe:0.24.1
     hostname: zeebe
@@ -21,7 +33,7 @@ services:
   operate:
     image: camunda/operate:0.24.2
     ports:
-      - "8088:8080"
+      - "8080:8080"
     depends_on:
       - zeebe
       - elasticsearch

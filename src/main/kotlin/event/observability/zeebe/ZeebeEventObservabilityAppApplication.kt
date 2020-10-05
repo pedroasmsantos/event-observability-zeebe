@@ -13,7 +13,8 @@ import org.springframework.web.bind.annotation.RestController
 @EnableZeebeClient
 @RestController
 @ZeebeDeployment(classPathResources = ["bpmn/workflows.bpmn"])
-class ZeebeEventObservabilityAppApplication {
+class ZeebeEventObservabilityAppApplication
+
 	@Autowired
 	private val client: ZeebeClientLifecycle? = null
 
@@ -26,4 +27,3 @@ class ZeebeEventObservabilityAppApplication {
 	fun main(args: Array<String>) {
 		runApplication<ZeebeEventObservabilityAppApplication>(*args)
 	}
-}
